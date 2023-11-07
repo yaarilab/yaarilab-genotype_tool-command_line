@@ -3,8 +3,7 @@ os.environ['GEVENT_SUPPORT'] = 'True'
 from collect import collect_repertoires_and_count_rearrangements, download_study
 import pandas as pd
 
-#outdir = r"C:\Users\yaniv\Desktop\yaarilab-genotype_tool-b11f598b9e93\yaarilab-genotype_tool-b11f598b9e93\downloads"
-
+# Define a default list of repository URLs and store them in a Pandas DataFrame
 default_repository_df = pd.DataFrame(
     [
         'https://covid19-1.ireceptor.org',
@@ -26,7 +25,7 @@ default_repository_df = pd.DataFrame(
     ], columns=['URL']
 )
 
-
+# Function to get user-selected repositories
 def get_repositories():
     stop_loop = False
     print("Available repositories:")
@@ -52,21 +51,8 @@ def get_repositories():
     selected_repository_df = pd.DataFrame(selected_urls, columns=['URL'])
     return selected_repository_df
 
-
-def main():
-    outdir = input("Please enter the path to download to.")
-    while True:
-        if not os.path.isdir(outdir):
-                os.makedirs(outdir)
-        study_id = input("Enter study ID, or exit to finish: ")
-        if study_id == "exit":
-            return
-        selected_repository_df = get_repositories()
-        print("Sending search request...")
-        search_results = collect_repertoires_and_count_rearrangements(
-            selected_repository_df, study_id)
-
-        if len(search_results['Repertoire']) > 0:
+def start_downloading(search_results):
+    if len(search_results['Repertoire']) > 0:
             print(f"Found {len(search_results['Repertoire'])} repertoires.")
             print("Sending download request...")
             download_results = download_study(study_id, search_results['Repertoire'], outdir)
@@ -76,8 +62,23 @@ def main():
             else:
                 print(
                     f"Error in download process: {download_results.get('error', 'Unknown error')}")
-        else:
-            print(f"Error in search process or no repertoires found")
+    else:
+        print(f"Error in search process or no repertoires found")
+
+
+# Main function for the script
+def main():
+    outdir = input("Please enter the path to download to.")
+    while True:
+        if not os.path.isdir(outdir):
+            os.makedirs(outdir)
+        study_id = input("Enter study ID, or exit to finish: ")
+        if study_id == "exit":
+            return
+        selected_repository_df = get_repositories()
+        print("Sending search request...")
+        search_results = collect_repertoires_and_count_rearrangements(selected_repository_df, study_id)
+        start_downloading(search_results)
 
 
 if __name__ == "__main__":
