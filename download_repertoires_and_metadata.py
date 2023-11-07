@@ -51,7 +51,7 @@ def get_repositories():
     selected_repository_df = pd.DataFrame(selected_urls, columns=['URL'])
     return selected_repository_df
 
-def start_downloading(search_results):
+def start_downloading(search_results,study_id,outdir):
     if len(search_results['Repertoire']) > 0:
             print(f"Found {len(search_results['Repertoire'])} repertoires.")
             print("Sending download request...")
@@ -78,7 +78,7 @@ def main():
         selected_repository_df = get_repositories()
         print("Sending search request...")
         search_results = collect_repertoires_and_count_rearrangements(selected_repository_df, study_id)
-        start_downloading(search_results)
+        start_downloading(search_results,study_id,outdir)
 
 
 if __name__ == "__main__":
