@@ -87,6 +87,7 @@ def collect_repertoires(repository_df, study_id):
         url = repository_df.URL.iloc[i]
         if not response:
             logger.warning(f'failed getting response from: {url}')
+            print(f'failed getting response from: {url}')
             continue
         # try to parse the response as json
         try:
@@ -101,6 +102,8 @@ def collect_repertoires(repository_df, study_id):
             for repertoire in repertoires:
                 repertoire['repository'] = urlparse(url).netloc
             results['Repertoire'].extend(repertoires)
+        else:
+            print("no repertoires was found in ",url)
 
     logger.info(json.dumps(results, indent=2))
     return results

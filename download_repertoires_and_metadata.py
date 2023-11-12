@@ -29,6 +29,7 @@ default_repository_df = pd.DataFrame(
 def get_repositories():
     stop_loop = False
     print("Available repositories:")
+    print("0. Select all repositories")
     for idx, url in enumerate(default_repository_df['URL'], 1):
         print(f"{idx}. {url}")
 
@@ -36,17 +37,21 @@ def get_repositories():
         valid_input = True
 
         selected_indices = input(
-            "Enter the indices of the repositories you want to download from (e.g., 1 2 3): ").split()
+            "Enter the indices of the repositories you want to download from (e.g., 1 2 3, or 0 for all): ").split()
         for number in selected_indices:
-            if int(number) < 1 or int(number) > len(default_repository_df):
+            if int(number) < 0 or int(number) > len(default_repository_df):
                 print(f"{number} is not in the range")
                 valid_input = False
 
         if valid_input:
             stop_loop = True
-
-    selected_urls = [default_repository_df['URL']
-                     [int(idx) - 1] for idx in selected_indices]
+    
+    if '0' in selected_indices:
+        selected_urls = [default_repository_df['URL']
+                     [int(idx)] for idx in range(0, len(default_repository_df))]
+    else:
+        selected_urls = [default_repository_df['URL']
+                        [int(idx) - 1] for idx in selected_indices]
     # Create DataFrame from selected URLs
     selected_repository_df = pd.DataFrame(selected_urls, columns=['URL'])
     return selected_repository_df
@@ -63,7 +68,7 @@ def start_downloading(search_results,study_id,outdir):
                 print(
                     f"Error in download process: {download_results.get('error', 'Unknown error')}")
     else:
-        print(f"Error in search process or no repertoires found")
+        print(f"No repertoires found")
 
 
 # Main function for the script

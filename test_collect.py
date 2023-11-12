@@ -96,7 +96,7 @@ class TestMethods(unittest.TestCase):
                         "rearrangements": 19510
                     },
                 ],
-                output_dir=r"C:\Users\yaniv\Desktop\yaarilab-genotype_tool-b11f598b9e93\yaarilab-genotype_tool-b11f598b9e93\downloads",
+                output_dir=r"C:\Users\yaniv\Desktop\yaarilab-genotype_tool-b11f598b9e93\yaarilab-genotype_tool-command_line\downloads",
                 max_concurrent_downloads=1
             )
             downloader.start()
