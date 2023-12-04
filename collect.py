@@ -19,6 +19,7 @@ import gzip
 import signal
 import pycurl
 import urllib3
+from create_projects_structure import start_new_structure
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -39,7 +40,8 @@ default_repository_df = pd.DataFrame(
         'https://airr-seq.vdjbase.org',
         'https://roche-airr.ireceptor.org',
         'https://t1d-1.ireceptor.org',
-        'https://agschwab.uni-muenster.de'
+        'https://agschwab.uni-muenster.de',
+        'http://127.0.0.1:5000'
     ], columns=['URL']
 )
 
@@ -49,7 +51,7 @@ downloader_table_size = 10
 downloader_table = []
 max_concurrent_downloads = 3
 
-#logging.getLogger("urlib3").addFilter(lambda record: "Unverified HTTPS request is being made" not in record.getMessage())
+logging.getLogger("urlib3").addFilter(lambda record: "Unverified HTTPS request is being made" not in record.getMessage())
 logger = logging.getLogger("genotype")
 logger.setLevel(logging.INFO)
 
@@ -72,7 +74,6 @@ def collect_repertoires(repository_df, study_id):
                                     "value": str(study_id)
                                 }
                         },
-                    "format": "tsv"
                 },
                 verify=False
             )
@@ -86,6 +87,7 @@ def collect_repertoires(repository_df, study_id):
 
         url = repository_df.URL.iloc[i]
         if not response:
+            print(response.text)
             logger.warning(f'failed getting response from: {url}')
             print(f'failed getting response from: {url}')
             continue
@@ -131,7 +133,7 @@ def count_rearrangements(repertoires):
                 "facets": "repertoire_id"
             }, verify=False
         ) for url, repertoire_ids in repertoires_df.groupby('repository').apply(
-            lambda x: (f"https://{x.repository.iloc[0]}", x.repertoire_id.to_list())
+            lambda x: (f"https://{x.repository.iloc[0]}", x.repertoire_id.to_list())  ###http
         )
     )
     repertoires_df.set_index('repertoire_id', inplace=True)
@@ -139,6 +141,7 @@ def count_rearrangements(repertoires):
     for i, response in enumerate(responses):
         url = repertoires_df.groupby('repository').apply(lambda x: x.repository.iloc[0]).iloc[i]
         if not response:
+            print(response.text)
             logger.warning(f'failed getting response from: {url}')
             continue
         try:
@@ -237,7 +240,7 @@ class RepDownloader(threading.Thread):
         self.download['status'] = 'downloading'
         request_json = {
             "filters":  {
-                "op": "=",
+                "op": "=", #####in
                 "content": {
                     "field": "repertoire_id",
                     "value": str(self.download['repertoire_id'])
@@ -263,6 +266,7 @@ class RepDownloader(threading.Thread):
                 self.req.perform()
                 self.req.close()
                 self.callback(self.download)
+                time.sleep(1)
 
         except Exception as e:
             if isinstance(e, pycurl.error) and e.args[0] == pycurl.E_ABORTED_BY_CALLBACK:
@@ -308,13 +312,14 @@ class BatchDownloader(threading.Thread):
                 download['status'] = 'completed'
             self.completed_downloads.append(download)
             self.downloaders.drop(download['repertoire_id'], inplace=True)
+        
 
     def run(self):
         download_tasks = pd.DataFrame(
             list(map(
                 lambda x: [
                     x['repertoire_id'],
-                    f"https://{x['repository']}/airr/v1/rearrangement",
+                    f"https://{x['repository']}/airr/v1/rearrangement", ##http
                     x['subject']['subject_id'],
                     os.path.join(self.output_dir, f"{x['repertoire_id']}.tsv.gz"),
                     x['rearrangements'],
@@ -353,6 +358,11 @@ class BatchDownloader(threading.Thread):
                     repertoire['filename'] = download['filename']
         with open(os.path.join(self.output_dir, 'metadata.json'), 'w') as f_out:
             json.dump(self.metadata, f_out, indent=2)
+        
+        project_name = self.metadata['Repertoire'][0]['study']['study_id']
+        print(f"finish to download {project_name}")
+        time.sleep(5)
+        start_new_structure(project_name)
 
     def cancel_download(self):
         with self.lock:
@@ -372,7 +382,6 @@ class BatchDownloader(threading.Thread):
                 "downloads": self.completed_downloads.copy() + self.in_progress_downloads.copy() + list(self.download_queue.queue.copy()),
                 "download_dir": self.output_dir
             }
-
 
 
 

@@ -21,7 +21,9 @@ default_repository_df = pd.DataFrame(
         'https://airr-seq.vdjbase.org',
         'https://roche-airr.ireceptor.org',
         'https://t1d-1.ireceptor.org',
-        'https://agschwab.uni-muenster.de'
+        'https://agschwab.uni-muenster.de',
+        'http://127.0.0.1:5000'
+        
     ], columns=['URL']
 )
 
@@ -73,7 +75,8 @@ def start_downloading(search_results,study_id,outdir):
 
 # Main function for the script
 def main():
-    outdir = input("Please enter the path to download to.")
+    #outdir = input("Please enter the path to download to.")
+    outdir = r"C:\Users\yaniv\Desktop\work\yaarilab-genotype_tool-command_line\sequence_data_store"
     while True:
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
