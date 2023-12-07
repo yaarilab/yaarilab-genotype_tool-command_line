@@ -8,6 +8,7 @@ from json_to_tsv import create_tsv_files
 
 # Define the path where project data will be stored
 PROJECTS_PATH = r"/misc/work/sequence_data_store/"
+#PROJECTS_PATH = r"C:\Users\yaniv\Desktop\work\yaarilab-genotype_tool-command_line\yaarilab-genotype_tool-command_line\sequence_data_store"
 
 def slugify(value, allow_unicode=False):
     # Converts a string into a slug format, which is easier to handle in file systems
@@ -27,7 +28,7 @@ def create_new_structure(project):
     # Creates a new directory structure for a specific project
     project_path = os.path.join(PROJECTS_PATH, project)
     metadata_file = os.path.join(project_path, "metadata.json")
-
+    
     with open(metadata_file, 'r') as metadata_file:
         metadata = json.load(metadata_file)
         # Create a folder for raw sequence data
@@ -49,8 +50,28 @@ def create_new_structure(project):
                         os.mkdir(sample_id_folder_path)
                 
                 # Move repertoire files to the corresponding sample folder
+                repertoire_folder_path = os.path.join(sample_id_folder_path, repertoire["repertoire_id"])
+                if not os.path.isdir(repertoire_folder_path):
+                    os.mkdir(repertoire_folder_path)
                 repertoire_path = os.path.join(project_path, repertoire["repertoire_id"] + ".tsv.gz")
-                shutil.move(repertoire_path, sample_id_folder_path)
+                create_ids_json(repertoire["repertoire_id"], subject_id , sample_id, repertoire_folder_path)
+                shutil.move(repertoire_path, repertoire_folder_path)
+
+
+def create_ids_json(repertoire_id, subject_id, sample_id, repertoire_folder_path):
+    json_path = os.path.join(repertoire_folder_path, 'repertoire_id.json')
+    # Create a dictionary with the provided data
+    data = {
+        "repertoire_id": repertoire_id,
+        "subject_id": subject_id,
+        "sample_id": sample_id
+    }
+
+    # Write the dictionary to a JSON file at the specified path
+    with open(json_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+    
+
 
 def move_metadata_file(project):
     # Moves the metadata file of a project to a specific folder
@@ -80,5 +101,9 @@ def start_new_structure(project_name):
     move_metadata_file(project_name)
     print(f"finished creating new structure for {project_name}")
     time.sleep(2)
+
+
+
     # Calls a function from another script to create TSV files
     #create_tsv_files(project_name)
+

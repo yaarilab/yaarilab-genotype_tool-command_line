@@ -3,6 +3,9 @@ os.environ['GEVENT_SUPPORT'] = 'True'
 from collect import collect_repertoires_and_count_rearrangements, download_study
 import pandas as pd
 
+#OUTDIR = r'C:\Users\yaniv\Desktop\work\yaarilab-genotype_tool-command_line\yaarilab-genotype_tool-command_line\sequence_data_store'
+OUTDIR = r'/misc/work/sequence_data_store/'
+
 # Define a default list of repository URLs and store them in a Pandas DataFrame
 default_repository_df = pd.DataFrame(
     [
@@ -76,7 +79,7 @@ def start_downloading(search_results,study_id,outdir):
 # Main function for the script
 def main():
     #outdir = input("Please enter the path to download to.")
-    outdir = r"C:\Users\yaniv\Desktop\work\yaarilab-genotype_tool-command_line\sequence_data_store"
+    outdir = OUTDIR
     while True:
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
