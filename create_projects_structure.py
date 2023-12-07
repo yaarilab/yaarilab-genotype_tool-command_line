@@ -81,4 +81,4 @@ def start_new_structure(project_name):
     print(f"finished creating new structure for {project_name}")
     time.sleep(2)
     # Calls a function from another script to create TSV files
-    create_tsv_files(project_name)
+    #create_tsv_files(project_name)
