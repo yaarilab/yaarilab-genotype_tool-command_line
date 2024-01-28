@@ -32,14 +32,14 @@ def create_new_structure(project):
     with open(metadata_file, 'r') as metadata_file:
         metadata = json.load(metadata_file)
         # Create a folder for raw sequence data
-        raw_seq_folder_path = os.path.join(project_path, "raw_seq")
-        if not os.path.isdir(raw_seq_folder_path):
-            os.mkdir(raw_seq_folder_path)
+        adc_annotated_folder_path = os.path.join(project_path, "adc_annotated")
+        if not os.path.isdir(adc_annotated_folder_path):
+            os.mkdir(adc_annotated_folder_path)
 
             # Organize data by subject and sample ID
             for repertoire in metadata["Repertoire"]:
                 subject_id = slugify(repertoire["subject"]["subject_id"])
-                subject_id_folder_path = os.path.join(raw_seq_folder_path, subject_id)
+                subject_id_folder_path = os.path.join(adc_annotated_folder_path, subject_id)
                 if not os.path.isdir(subject_id_folder_path):
                     os.mkdir(subject_id_folder_path)
                 
@@ -102,8 +102,4 @@ def start_new_structure(project_name):
     print(f"finished creating new structure for {project_name}")
     time.sleep(2)
 
-
-
-    # Calls a function from another script to create TSV files
-    #create_tsv_files(project_name)
 
