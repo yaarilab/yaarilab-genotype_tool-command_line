@@ -5,9 +5,10 @@ import unicodedata
 import re
 import time
 from json_to_tsv import create_tsv_files
+from extract_sequences_from_ADC_annotations import start_extraction
 
 # Define the path where project data will be stored
-PROJECTS_PATH = r"/misc/work/sequence_data_store/"
+PROJECTS_PATH = r"/work/sequence_data_store/"
 #PROJECTS_PATH = r"C:\Users\yaniv\Desktop\work\yaarilab-genotype_tool-command_line\yaarilab-genotype_tool-command_line\sequence_data_store"
 
 def slugify(value, allow_unicode=False):
@@ -19,10 +20,10 @@ def slugify(value, allow_unicode=False):
     else:
         # Convert to ASCII and ignore non-ASCII characters
         value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
-    # Remove any character that is not a word character, whitespace, or hyphen
-    value = re.sub(r"[^\w\s-]", "", value.lower())
-    # Replace spaces and repeated hyphens with a single hyphen
-    return re.sub(r"[-\s]+", "-", value).strip("-_")
+    # Remove any character that is not a word character or hyphen
+    value = re.sub(r"[^\w\s-]", "", value)
+    # Replace repeated hyphens with a single hyphen
+    return re.sub(r"[-]+", "-", value).strip("-_")
 
 def create_new_structure(project):
     # Creates a new directory structure for a specific project
@@ -101,5 +102,8 @@ def start_new_structure(project_name):
     move_metadata_file(project_name)
     print(f"finished creating new structure for {project_name}")
     time.sleep(2)
+    print(f"start to exctract sequences from {project_name}")
+    start_extraction(project_name)
+
 
 
